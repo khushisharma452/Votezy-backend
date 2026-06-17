@@ -1,6 +1,6 @@
 services:
   - type: web
     name: votezy-backend
-    env: docker
+    env: java
     buildCommand: "./mvnw clean package -DskipTests"
     startCommand: "java -jar target/*.jar"
