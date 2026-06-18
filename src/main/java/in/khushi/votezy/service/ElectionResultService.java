@@ -17,7 +17,7 @@ import in.khushi.votezy.repository.VoteRepository;
 @Service
 public class ElectionResultService {
 
-```
+
 private final CandidateRepository candidateRepository;
 private final ElectionResultRepository electionResultRepository;
 private final VoteRepository voteRepository;
@@ -79,6 +79,5 @@ public ElectionResult declareElectionResult(String electionName) {
 public List<ElectionResult> getAllResults() {
     return electionResultRepository.findAll();
 }
-```
 
 }
