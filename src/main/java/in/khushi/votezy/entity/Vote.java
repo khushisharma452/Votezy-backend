@@ -15,7 +15,7 @@ import lombok.Data;
 @Data
 public class Vote {
 
-```
+
 @Id
 @GeneratedValue(strategy = GenerationType.IDENTITY)
 private Long id;
@@ -50,6 +50,6 @@ public Long getCandidateId() {
 public Long getElectionId() {
     return election != null ? election.getId() : null;
 }
-```
+
 
 }
