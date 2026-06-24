@@ -9,38 +9,47 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToOne;
 import lombok.Data;
-
 
 @Entity
 @Data
 public class Vote {
-	
-	@Id
-	@GeneratedValue(strategy=GenerationType.IDENTITY)
-	private Long id;
-	
-	@OneToOne
-	@JoinColumn(name="voter_id",unique=true)
-	@JsonIgnore
-	private Voter voter;
-	
-	@ManyToOne
-	@JoinColumn(name="candidate_id")
-	@JsonIgnore
-	private Candidate candidate;
-	
-	@JsonProperty("voterId")
-	public Long getVoterId() {
-		return voter!=null ? voter.getId():null;
-	}
-	@JsonProperty("candidateId")
-	public Long getCandidateId() {
-		return candidate!=null ? candidate.getId():null;
-	}
-	@ManyToOne
-	@JoinColumn(name = "election_id")
-	private Election election;
+
+
+@Id
+@GeneratedValue(strategy = GenerationType.IDENTITY)
+private Long id;
+
+// One voter can vote in multiple elections
+@ManyToOne
+@JoinColumn(name = "voter_id")
+@JsonIgnore
+private Voter voter;
+
+@ManyToOne
+@JoinColumn(name = "candidate_id")
+@JsonIgnore
+private Candidate candidate;
+
+@ManyToOne
+@JoinColumn(name = "election_id")
+@JsonIgnore
+private Election election;
+
+@JsonProperty("voterId")
+public Long getVoterId() {
+    return voter != null ? voter.getId() : null;
+}
+
+@JsonProperty("candidateId")
+public Long getCandidateId() {
+    return candidate != null ? candidate.getId() : null;
+}
+
+@JsonProperty("electionId")
+public Long getElectionId() {
+    return election != null ? election.getId() : null;
+}
+
 
 }

@@ -16,56 +16,94 @@ import jakarta.transaction.Transactional;
 
 @Service
 public class VoterService {
-     private VoterRepository voterRepository;
-     private CandidateRepository candidateRepository;
-     
-     @Autowired
-	 public VoterService(VoterRepository voterRepository, CandidateRepository candidateRepository) {
-		this.voterRepository = voterRepository;
-		this.candidateRepository = candidateRepository;
-	 }
-     
-     public Voter registerVoter(Voter voter) {
-    	 if(voterRepository.existsByEmail(voter.getEmail())) {
-    		 throw new DuplicateResourceException("Voter with email id:"+voter.getEmail()+" ");
-    	 }
-    	 return voterRepository.save(voter);
-     }
-     public List<Voter>getAllVoters(){
-    	 return voterRepository.findAll();
-     }
-     public Voter getVoterById(Long id) {
-    	 Voter voter=voterRepository.findById(id).orElse(null);
-    	 if(voter==null) {
-    		 throw new ResourceNotFoundException("Voter with id:"+voter.getId()+" not found");
-    	 }
-    	 return voter;
-    	 
-     }
-     public Voter updateVoter(Long id,Voter updatedVoter) {
-    	 Voter voter=voterRepository.findById(id).orElse(null);
-    	 if(voter==null) {
-    		 throw new ResourceNotFoundException("Voter with id:"+id+" not found");
-    		 }
-    	 if(updatedVoter.getName()!=null) {
-    	 voter.setName(updatedVoter.getName());}
-    	 if(updatedVoter.getEmail()!=null) {
-    	 voter.setEmail(updatedVoter.getEmail());}
-    	 return voterRepository.save(voter);
-     }
-     @Transactional
-     public void deleteVoter(Long id) {
-    	 Voter voter=voterRepository.findById(id).orElse(null);
-    	 if(voter==null) {
-    		 throw new ResourceNotFoundException("Cannot delete voter with id:"+id+"not found");
-    	 }
-    	Vote vote=voter.getVote();
-    	if(vote!=null) {
-    		Candidate candidate=vote.getCandidate();
-    		candidate.setVoteCount(candidate.getVoteCount()-1);
-    		candidateRepository.save(candidate);
-    	}
-    	voterRepository.delete(voter);
-    	
-     }
+
+    private final VoterRepository voterRepository;
+    private final CandidateRepository candidateRepository;
+
+    @Autowired
+    public VoterService(
+            VoterRepository voterRepository,
+            CandidateRepository candidateRepository) {
+
+        this.voterRepository = voterRepository;
+        this.candidateRepository = candidateRepository;
+    }
+
+    public Voter registerVoter(Voter voter) {
+
+        if (voterRepository.existsByEmail(voter.getEmail())) {
+            throw new DuplicateResourceException(
+                    "Voter with email id: "
+                            + voter.getEmail()
+                            + " already exists");
+        }
+
+        return voterRepository.save(voter);
+    }
+
+    public List<Voter> getAllVoters() {
+        return voterRepository.findAll();
+    }
+
+    public Voter getVoterById(Long id) {
+
+        return voterRepository.findById(id)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException(
+                                "Voter with id: "
+                                        + id
+                                        + " not found"));
+    }
+
+    public Voter updateVoter(
+            Long id,
+            Voter updatedVoter) {
+
+        Voter voter = voterRepository.findById(id)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException(
+                                "Voter with id: "
+                                        + id
+                                        + " not found"));
+
+        if (updatedVoter.getName() != null) {
+            voter.setName(updatedVoter.getName());
+        }
+
+        if (updatedVoter.getEmail() != null) {
+            voter.setEmail(updatedVoter.getEmail());
+        }
+
+        return voterRepository.save(voter);
+    }
+
+    @Transactional
+    public void deleteVoter(Long id) {
+
+        Voter voter = voterRepository.findById(id)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException(
+                                "Cannot delete voter with id: "
+                                        + id));
+
+        if (voter.getVotes() != null) {
+
+            for (Vote vote : voter.getVotes()) {
+
+                Candidate candidate = vote.getCandidate();
+
+                if (candidate != null) {
+
+                    candidate.setVoteCount(
+                            Math.max(
+                                    candidate.getVoteCount() - 1,
+                                    0));
+
+                    candidateRepository.save(candidate);
+                }
+            }
+        }
+
+        voterRepository.delete(voter);
+    }
 }
